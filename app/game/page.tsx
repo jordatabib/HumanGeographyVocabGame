@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import dynamic from "next/dynamic"
-import Link from "next/link"
 import { useVocabStore } from "@/lib/vocab-store"
 import { LiquidButton } from "@/components/ui/liquid-glass-button"
 import { GameMode } from "@/lib/types"
@@ -262,12 +261,6 @@ export default function GamePage() {
             </div>
           )}
 
-          <Link
-            href="/settings"
-            className="absolute bottom-8 text-white/20 text-xs hover:text-white/50 transition-colors tracking-widest uppercase"
-          >
-            Settings
-          </Link>
         </div>
       </div>
     )
@@ -339,12 +332,6 @@ export default function GamePage() {
             </LiquidButton>
           </div>
 
-          <Link
-            href="/settings"
-            className="mt-10 text-white/20 text-xs hover:text-white/50 transition-colors tracking-widest uppercase"
-          >
-            Settings
-          </Link>
         </div>
       </div>
     )
