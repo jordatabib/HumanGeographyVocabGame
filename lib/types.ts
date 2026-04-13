@@ -7,7 +7,7 @@ export interface VocabItem {
   timesIncorrect: number
 }
 
-export type GameMode = "wordToDefinition" | "definitionToWord" | "dragMatch"
+export type GameMode = "wordToDefinition" | "definitionToWord"
 
 export interface Progress {
   correctAnswers: number

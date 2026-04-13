@@ -107,7 +107,7 @@ export default function QuizModes({ mode }: QuizProps) {
         <p className="text-white/35 text-xs text-center uppercase tracking-[0.15em]">
           Select the correct {choiceLabel}
         </p>
-        <div className="grid grid-cols-1 gap-3">
+        <div className="grid grid-cols-1 gap-4">
           {choices.map((choice) => {
             const isThisCorrect = choice === correctAnswer
             const isThisSelected = choice === selected
@@ -118,12 +118,12 @@ export default function QuizModes({ mode }: QuizProps) {
                 onClick={() => handleSelect(choice)}
                 disabled={selected !== null}
                 className={cn(
-                  "w-full justify-start px-6 text-left leading-snug",
+                  "w-full min-h-[3.5rem] h-auto py-4 px-6 text-left justify-start whitespace-normal break-words leading-snug",
                   selected !== null && isThisCorrect && "ring-2 ring-green-400",
                   selected !== null && isThisSelected && !isThisCorrect && "ring-2 ring-red-400"
                 )}
               >
-                <span className="line-clamp-3 text-sm">{choice}</span>
+                {choice}
               </LiquidButton>
             )
           })}

@@ -7,15 +7,10 @@ import { LiquidButton } from "@/components/ui/liquid-glass-button"
 import { GameMode } from "@/lib/types"
 import { ALL_UNITS } from "@/lib/vocab-data"
 import QuizModes from "@/components/game/QuizModes"
-import DragMatchGame from "@/components/game/DragMatchGame"
 
-// Dynamic imports to avoid SSR issues with WebGL / Three.js
-const ShaderAnimation = dynamic(
-  () => import("@/components/ui/shader-animation").then((m) => ({ default: m.ShaderAnimation })),
-  { ssr: false }
-)
-const ShaderBackground = dynamic(
-  () => import("@/components/ui/shader-background"),
+// Dynamic import to avoid SSR issues with WebGL / Three.js
+const AnoAI = dynamic(
+  () => import("@/components/ui/animated-shader-background"),
   { ssr: false }
 )
 
@@ -24,7 +19,6 @@ type Screen = "landing" | "playing" | "results"
 const MODES: { value: GameMode; label: string }[] = [
   { value: "wordToDefinition", label: "Word → Definition" },
   { value: "definitionToWord", label: "Definition → Word" },
-  { value: "dragMatch", label: "Drag Match" },
 ]
 
 const QUIZ_LENGTHS = [5, 10, 20, 30, 50, 0] // 0 = unlimited
@@ -47,7 +41,6 @@ export default function GamePage() {
     mode, progress, items, resetProgress, setMode,
     selectedUnits, toggleUnit, setSelectedUnits,
     quizLength, setQuizLength,
-    dragMatchDirection, setDragMatchDirection,
     getActiveItems,
   } = useVocabStore()
 
@@ -62,12 +55,12 @@ export default function GamePage() {
 
   const activeItems = getActiveItems()
 
-  // Auto-end session when quiz length is reached (quiz modes only)
+  // Auto-end session when quiz length is reached
   useEffect(() => {
-    if (screen === "playing" && mode !== "dragMatch" && quizLength > 0 && sessionTotal >= quizLength) {
+    if (screen === "playing" && quizLength > 0 && sessionTotal >= quizLength) {
       setScreen("results")
     }
-  }, [sessionTotal, quizLength, screen, mode])
+  }, [sessionTotal, quizLength, screen])
 
   // Weakest units based on stored timesIncorrect/timesCorrect ratio
   const unitStats = items.reduce<Record<string, { correct: number; incorrect: number }>>((acc, item) => {
@@ -109,7 +102,7 @@ export default function GamePage() {
   if (screen === "landing") {
     return (
       <div className="relative min-h-screen overflow-hidden bg-black">
-        <ShaderAnimation />
+        <AnoAI />
 
         <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-16 text-center">
           {/* Badge */}
@@ -146,46 +139,25 @@ export default function GamePage() {
             ))}
           </div>
 
-          {/* Drag match direction toggle */}
-          {mode === "dragMatch" && (
-            <div className="flex gap-2 justify-center mb-6">
-              {(["wordToDefinition", "definitionToWord"] as const).map((dir) => (
+          {/* Quiz length picker */}
+          <div className="flex items-center gap-2 justify-center mb-6">
+            <span className="text-white/25 text-xs uppercase tracking-widest">Quiz length:</span>
+            <div className="flex gap-1.5">
+              {QUIZ_LENGTHS.map((n) => (
                 <button
-                  key={dir}
-                  onClick={() => setDragMatchDirection(dir)}
-                  className={`rounded-full px-4 py-1.5 text-xs border transition-all ${
-                    dragMatchDirection === dir
-                      ? "border-violet-400/60 bg-violet-500/20 text-violet-300"
+                  key={n}
+                  onClick={() => setQuizLength(n)}
+                  className={`rounded-full px-3 py-1 text-xs border transition-all ${
+                    quizLength === n
+                      ? "border-white/50 bg-white/15 text-white"
                       : "border-white/10 text-white/30 hover:border-white/30 hover:text-white/60"
                   }`}
                 >
-                  {dir === "wordToDefinition" ? "Word → Definition" : "Definition → Word"}
+                  {n === 0 ? "∞" : n}
                 </button>
               ))}
             </div>
-          )}
-
-          {/* Quiz length picker (not for drag match) */}
-          {mode !== "dragMatch" && (
-            <div className="flex items-center gap-2 justify-center mb-6">
-              <span className="text-white/25 text-xs uppercase tracking-widest">Quiz length:</span>
-              <div className="flex gap-1.5">
-                {QUIZ_LENGTHS.map((n) => (
-                  <button
-                    key={n}
-                    onClick={() => setQuizLength(n)}
-                    className={`rounded-full px-3 py-1 text-xs border transition-all ${
-                      quizLength === n
-                        ? "border-white/50 bg-white/15 text-white"
-                        : "border-white/10 text-white/30 hover:border-white/30 hover:text-white/60"
-                    }`}
-                  >
-                    {n === 0 ? "∞" : n}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+          </div>
 
           {/* Unit selector */}
           <div className="mb-10 w-full max-w-lg">
@@ -269,8 +241,8 @@ export default function GamePage() {
   // ── RESULTS ────────────────────────────────────────────────────────────
   if (screen === "results") {
     return (
-      <div className="relative min-h-screen overflow-hidden">
-        <ShaderBackground />
+      <div className="relative min-h-screen overflow-hidden bg-black">
+        <AnoAI />
 
         <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-16 text-center">
           <p className="text-white/30 text-xs uppercase tracking-[0.25em] mb-6">Session Complete</p>
@@ -340,7 +312,7 @@ export default function GamePage() {
   // ── PLAYING ────────────────────────────────────────────────────────────
   return (
     <div className="relative min-h-screen overflow-hidden bg-black">
-      <ShaderAnimation />
+      <AnoAI />
 
       <div className="relative z-10 flex flex-col min-h-screen">
         {/* Top bar */}
@@ -355,7 +327,7 @@ export default function GamePage() {
             <span className="text-blue-400 font-semibold tabular-nums">
               🔥 {progress.streak}
             </span>
-            {quizLength > 0 && mode !== "dragMatch" && (
+            {quizLength > 0 && (
               <span className="text-white/30 text-xs tabular-nums">
                 {sessionTotal}/{quizLength}
               </span>
@@ -377,7 +349,7 @@ export default function GamePage() {
 
         {/* Quiz content */}
         <div className="flex-1 flex flex-col items-center justify-center px-4 py-10 overflow-auto">
-          {mode === "dragMatch" ? <DragMatchGame /> : <QuizModes mode={mode} />}
+          <QuizModes mode={mode} />
         </div>
       </div>
     </div>

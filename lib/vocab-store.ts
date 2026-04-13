@@ -9,7 +9,6 @@ interface VocabStore {
   progress: Progress
   selectedUnits: string[]
   quizLength: number
-  dragMatchDirection: "wordToDefinition" | "definitionToWord"
 
   removeItem: (id: string) => void
   setMode: (mode: GameMode) => void
@@ -19,7 +18,6 @@ interface VocabStore {
   setSelectedUnits: (units: string[]) => void
   toggleUnit: (unit: string) => void
   setQuizLength: (n: number) => void
-  setDragMatchDirection: (dir: "wordToDefinition" | "definitionToWord") => void
   getWeightedItems: () => VocabItem[]
   getActiveItems: () => VocabItem[]
 }
@@ -38,7 +36,6 @@ export const useVocabStore = create<VocabStore>()(
       progress: defaultProgress,
       selectedUnits: ALL_UNITS,
       quizLength: 10,
-      dragMatchDirection: "wordToDefinition",
 
       removeItem: (id) => {
         set((state) => ({ items: state.items.filter((i) => i.id !== id) }))
@@ -60,8 +57,6 @@ export const useVocabStore = create<VocabStore>()(
       },
 
       setQuizLength: (n) => set({ quizLength: n }),
-
-      setDragMatchDirection: (dir) => set({ dragMatchDirection: dir }),
 
       updateProgress: (correct, itemId) => {
         set((state) => {

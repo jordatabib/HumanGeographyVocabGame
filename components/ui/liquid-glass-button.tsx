@@ -16,8 +16,8 @@ const liquidbuttonVariants = cva(
         default: "h-9 px-4 py-2",
         sm: "h-8 text-xs px-4",
         lg: "h-10 px-6",
-        xl: "h-12 px-8",
-        xxl: "h-14 px-10 text-base",
+        xl: "min-h-[3rem] h-auto px-8 py-3",
+        xxl: "min-h-[3.5rem] h-auto px-10 py-4 text-base",
       },
     },
     defaultVariants: {
